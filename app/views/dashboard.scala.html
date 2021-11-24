@@ -1,0 +1,25 @@
+@(lambdas: List[com.gu.imagechecker.LambdaRecord])
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta charset="utf8">
+    <title>Image Checker</title>
+    <!-- <script src="index.js"></script> -->
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+  </head>
+  <body>
+    <table class="image-record-table">
+      <thead>
+        <tr><td>Lambda Name</td><td>Last modified</td><td>Image URI</td></tr>
+      </thead>
+      <tbody>
+        @for(lambdaRec <- lambdas.sortBy(_.lastModified)) {
+            <tr><td>@lambdaRec.name</td><td>@lambdaRec.lastModified</td><td>@lambdaRec.image.imageUri</td></tr>
+        }
+      </tbody>
+    </table>
+  </body>
+</html>

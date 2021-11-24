@@ -1,0 +1,12 @@
+.image-record-table {
+    border-collapse: collapse;
+}
+
+thead td {
+    border: 1px solid black;
+}
+
+td {
+    border: 1px dotted black;
+    padding: 0.5em;
+}
