@@ -9,6 +9,11 @@ import router.Routes
 import software.amazon.awssdk.services.lambda.LambdaClient
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 
+import scala.jdk.CollectionConverters._
+import com.github.dockerjava.core.DefaultDockerClientConfig
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
+import com.github.dockerjava.core.DockerClientImpl
+
 class ImageCheckerComponents(context: Context)
     extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
@@ -19,7 +24,16 @@ class ImageCheckerComponents(context: Context)
     .credentialsProvider(ProfileCredentialsProvider.create("mobile"))
     .build()
 
-//  lazy val defaultAssets = assets()
+
+  val defaultDockerClient = {
+    val dockerCfg = DefaultDockerClientConfig.createDefaultConfigBuilder().build()
+    val dockerHttp = new ApacheDockerHttpClient.Builder()
+      .dockerHost(dockerCfg.getDockerHost())
+      .sslConfig(dockerCfg.getSSLConfig())
+      .build();
+    DockerClientImpl.getInstance(dockerCfg, dockerHttp)
+  }
+
   lazy val imageChecker = wire[ImageChecker]
   lazy val imageCheckerController = wire[ImageCheckerController]
   val router: Router = {

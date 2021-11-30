@@ -13,11 +13,11 @@
   <body>
     <table class="image-record-table">
       <thead>
-        <tr><td>Lambda Name</td><td>Last modified</td><td>Image URI</td></tr>
+        <tr><td>Lambda Name</td><td>Last modified</td><td>Image URI</td><td>Base Version</td></tr>
       </thead>
       <tbody>
         @for(lambdaRec <- lambdas.sortBy(_.lastModified)) {
-            <tr><td>@lambdaRec.name</td><td>@lambdaRec.lastModified</td><td>@lambdaRec.image.imageUri</td></tr>
+            <tr><td>@lambdaRec.name</td><td>@lambdaRec.lastModified</td><td>@lambdaRec.image.imageUri</td><td>@lambdaRec.image.baseImageVersion</td></tr>
         }
       </tbody>
     </table>
