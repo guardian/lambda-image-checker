@@ -16,20 +16,24 @@ class ImageChecker(lambdaClient: LambdaClient, dockerClient: DockerClient, refer
 
   // tells us which is the latest version of the base
   // image -- i.e. this is the one we should be using.
-  def getReferenceImage(): Option[String] = {
+  def getReferenceImage(): Option[ImageRecord] = {
     dockerClient.pullImageCmd(referenceImage.imageName + ":latest")
       .start().awaitCompletion()
-    val image = dockerClient.inspectImageCmd(referenceImage.imageName).exec()
-    // Option(..) because it can be null (it's a java api)
-    Option(image.getRepoDigests()).flatMap(_.asScala.headOption)
+    val image = dockerClient.inspectImageCmd(referenceImage.imageName + ":latest").exec()
+    val createdDate = Instant.parse(image.getCreated())
+    for {
+      allDigests <- Option(image.getRepoDigests().asScala) // Option(..) because it can be null (it's a java api)
+      firstDigest <- allDigests.headOption
+    } yield ImageRecord(firstDigest, Some(createdDate))
   }
 
   def getImageByName(imageName: String): Option[Image] = {
+    // dockerClient.pullImageCmd(imageName)
+    //   .start().awaitCompletion()
     val req = dockerClient.listImagesCmd()
     // https://github.com/docker-java/docker-java/issues/1516
     req.getFilters.put("reference", List(imageName).asJava)
-    val images = req.exec().asScala.toList
-    images.headOption
+    req.exec().asScala.toList.headOption
   }
 
   def getBaseImageLabel(imageName: String): Option[String] = {
@@ -42,11 +46,11 @@ class ImageChecker(lambdaClient: LambdaClient, dockerClient: DockerClient, refer
     } yield baseVersion
   }
 
-  def getBaseImageRecord(imageUri: String): Option[BaseImageRecord] =
+  def getBaseImageRecord(imageUri: String): Option[ImageRecord] =
     for {
       baseVersion <- getBaseImageLabel(imageUri)
       baseImage <- getImageByName(baseVersion)
-    } yield BaseImageRecord(baseVersion, Instant.ofEpochSecond(baseImage.getCreated()))
+    } yield ImageRecord(baseVersion, Some(Instant.ofEpochSecond(baseImage.getCreated())))
 
   def getAllLambdaRecords() =
     for(l <- getImageLambdas(); name = l.functionName()) yield getLambdaRecord(name)
@@ -57,9 +61,11 @@ class ImageChecker(lambdaClient: LambdaClient, dockerClient: DockerClient, refer
         .functionName(name)
         .build())
     val imageUri = res.code().imageUri()
+    val imageCreatedAt = getImageByName(imageUri)
+      .map(image => Instant.ofEpochSecond(image.getCreated()))
     val baseImage = getBaseImageRecord(imageUri)
 
-    LambdaRecord(name, res.configuration().lastModified(), ImageRecord(imageUri, baseImage))
+    LambdaRecord(name, res.configuration().lastModified(), ImageRecord(imageUri, imageCreatedAt, baseImage))
   }
 
   def getLambdas(nextMarker: String = null): LazyList[FunctionConfiguration] = {

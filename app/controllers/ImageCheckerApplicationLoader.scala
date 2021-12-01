@@ -24,7 +24,6 @@ class ImageCheckerComponents(context: Context)
     .credentialsProvider(ProfileCredentialsProvider.create("mobile"))
     .build()
 
-
   val defaultDockerClient = {
     val dockerCfg = DefaultDockerClientConfig.createDefaultConfigBuilder().build()
     val dockerHttp = new ApacheDockerHttpClient.Builder()

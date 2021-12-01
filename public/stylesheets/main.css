@@ -1,5 +1,6 @@
 .image-record-table {
     border-collapse: collapse;
+    cursor: pointer;
 }
 
 thead td {
@@ -17,4 +18,8 @@ td {
 
 .uptodate-message--unknown {
     color: lightgrey;
+}
+
+.discreet {
+    font-size: 0.7em;
 }

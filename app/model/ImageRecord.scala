@@ -4,15 +4,14 @@ import org.threeten.extra.AmountFormats
 import java.time.{LocalDate, Period, Instant}
 import java.time.ZoneId
 
-case class BaseImageRecord(version: String, createdDate: Instant) {
-  def age = Period.between(LocalDate.ofInstant(createdDate, ZoneId.systemDefault()), LocalDate.now())
-  def ageString = AmountFormats.wordBased(age, java.util.Locale.getDefault())
-}
-
-case class ImageRecord(imageUri: String, baseImageRecord: Option[BaseImageRecord]) {
-  def upToDateMessage(expectedVersion: Option[String]): String = (expectedVersion, baseImageRecord) match {
-    case (exp, actual) if exp.isEmpty || actual.isEmpty => "unknown"
-    case (Some(exp), Some(BaseImageRecord(actual, _))) if exp == actual => "up-to-date"
+case class ImageRecord(imageUri: String, createdDate: Option[Instant], baseImageRecord: Option[ImageRecord] = None) {
+  def age = createdDate.map(cd =>
+    Period.between(LocalDate.ofInstant(cd, ZoneId.systemDefault()), LocalDate.now()))
+  def ageString = age.map(age => AmountFormats.wordBased(age, java.util.Locale.getDefault()))
+  def upToDateMessage(expectedVersion: Option[ImageRecord]): String = (expectedVersion, baseImageRecord) match {
+    case (None, _) | (_, None) => "unknown"
+    case (Some(ImageRecord(exp, _, _)), Some(ImageRecord(actual, _, _))) if exp == actual =>
+      "up-to-date"
     case _ => "out-of-date"
   }
 }

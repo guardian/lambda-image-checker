@@ -1,4 +1,4 @@
-@(lambdas: List[com.gu.imagechecker.LambdaRecord], referenceImage: Option[String])
+@(lambdas: List[com.gu.imagechecker.LambdaRecord], referenceImage: Option[com.gu.imagechecker.ImageRecord])
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -11,7 +11,11 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
   </head>
   <body>
-    <p><strong>Reference image:</strong> @referenceImage.getOrElse("missing")</p>
+      <p><strong>Reference image age:</strong>
+          @for(ref <- referenceImage) {
+              @ref.ageString <span class="discreet">(@ref.imageUri, created: @ref.createdDate)</span>
+          }
+      </p>
     <table class="image-record-table">
       <thead>
           <tr><td>Lambda Name</td><td>Last modified</td><td>Image URI</td><td>Up to date</td><td>Age</td></tr>
@@ -23,12 +27,12 @@
                   <td>@lambdaRec.lastModified</td>
                   <td>@lambdaRec.image.imageUri</td>
                   <td>
-                      <div title="imageUri: @lambdaRec.image.baseImageRecord.map(_.version)" class="uptodate-message--@lambdaRec.image.upToDateMessage(referenceImage)">
+                      <div title="imageUri: @lambdaRec.image.baseImageRecord.map(_.imageUri)" class="uptodate-message--@lambdaRec.image.upToDateMessage(referenceImage)">
                           @lambdaRec.image.upToDateMessage(referenceImage)
                       </div>
                   </td>
                   <td>
-                      @lambdaRec.image.baseImageRecord.map(_.ageString)
+                      <span title="created at: @lambdaRec.image.createdDate">@lambdaRec.image.ageString</span>
                   </td>
               </tr>
           }
