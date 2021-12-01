@@ -7,6 +7,6 @@ import play.api.mvc._
 class ImageCheckerController(cc: ControllerComponents, imageChecker: ImageChecker) extends AbstractController(cc) {
   def index() = Action { implicit request: Request[AnyContent] =>
     val recs = imageChecker.getAllLambdaRecords().toList
-    Ok(views.html.dashboard(recs))
+    Ok(views.html.dashboard(recs, imageChecker.getReferenceImage()))
   }
 }

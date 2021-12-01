@@ -34,6 +34,8 @@ class ImageCheckerComponents(context: Context)
     DockerClientImpl.getInstance(dockerCfg, dockerHttp)
   }
 
+  val imageReference = ReferenceImageConfig("public.ecr.aws/lambda/java")
+
   lazy val imageChecker = wire[ImageChecker]
   lazy val imageCheckerController = wire[ImageCheckerController]
   val router: Router = {

@@ -10,3 +10,11 @@ td {
     border: 1px dotted black;
     padding: 0.5em;
 }
+
+.uptodate-message--up-to-date {
+    color: green;
+}
+
+.uptodate-message--unknown {
+    color: lightgrey;
+}
